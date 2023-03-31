@@ -99,59 +99,78 @@ namespace Calendar
 					StartTime=new TimeSpan(Convert.ToInt32(startHour.SelectedItem), Convert.ToInt32(startMin.SelectedItem), 0),
 					EndTime = new TimeSpan(Convert.ToInt32(endHour.SelectedItem), Convert.ToInt32(endMin.SelectedItem), 0),
 				};
-				if (checklist(ca))
+				if (ca.StartTime > ca.EndTime)
 				{
-					if (NAME != "")
-					{
-
-						Calendar s = db.Calendar.Find(ID_1);
-						s.Name = ca.Name;
-						s.Address = ca.Address;
-						s.RemindDay = ca.RemindDay;
-						s.StartTime = ca.StartTime;
-						s.EndTime = ca.EndTime;
-						db.SaveChanges();
-					}
-					else
-					{
-						db.Calendar.Add(ca);
-						db.SaveChanges();
-					}
-					d();
-					this.Close();
+					MessageBox.Show("Nhập giờ không hợp lệ, mời bạn nhập lại");
 				}
 				else
 				{
-					MessageBox.Show("Thông tin không hợp lệ mời bạn nhập lại\n Nếu đây là thông tin đè vào remind khác, mời bạn bấm sửa ở hàng đó");
-					
-					var s = db.Calendar
-					.Where(p => (p.RemindDay == ca.RemindDay))
-					.Select(p => p)
-					.ToList();
-					foreach (Calendar i in s)
+					if (checklist(ca))
 					{
-						if((ca.StartTime >= i.EndTime || ca.EndTime <= i.StartTime) || i.ID == ID_1){
-							continue;
+						if (NAME != "")
+						{
+
+							Calendar s = db.Calendar.Find(ID_1);
+							s.Name = ca.Name;
+							s.Address = ca.Address;
+							s.RemindDay = ca.RemindDay;
+							s.StartTime = ca.StartTime;
+							s.EndTime = ca.EndTime;
+							db.SaveChanges();
 						}
-						else {
-							DialogResult at = MessageBox.Show("Bạn có muốn thay thế Remind có tên " + i.Name + " không ?", "Confirm", MessageBoxButtons.OKCancel);
-							if (at == DialogResult.OK)
+						else
+						{
+							db.Calendar.Add(ca);
+							db.SaveChanges();
+						}
+						d();
+						this.Close();
+					}
+					else
+					{
+						MessageBox.Show("Thông tin không hợp lệ mời bạn nhập lại");
+
+						var s = db.Calendar
+						.Where(p => (p.RemindDay == ca.RemindDay))
+						.Select(p => p)
+						.ToList();
+						foreach (Calendar i in s)
+						{
+							if ((ca.StartTime >= i.EndTime || ca.EndTime <= i.StartTime) || i.ID == ID_1)
 							{
-								db.Calendar.Remove(i);
-								
-								db.SaveChanges();
-								
+								continue;
 							}
 							else
 							{
-								break;
+								DialogResult at = MessageBox.Show("Bạn có muốn thay thế Remind có tên " + i.Name + " không ?", "Confirm", MessageBoxButtons.OKCancel);
+								if (at == DialogResult.OK)
+								{
+									db.Calendar.Remove(i);
+
+									db.SaveChanges();
+									d();
+
+								}
+								else
+								{
+									break;
+								}
+
+
 							}
-							db.Calendar.Add(ca);
 						}
+						if (checklist(ca))
+						{
+							db.Calendar.Add(ca);
+
+							db.SaveChanges();
+							d();
+						}
+
+
 					}
-					d();
+					this.Close();
 				}
-				
 			}
 
 
